@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Meeting Marathon: A Corporate Adventure</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background-color: #008080; /* Classic teal background */
+      color: #000;
+      margin: 0;
+      padding: 20px;
+    }
+    
+    .game-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #c0c0c0; /* Classic Windows gray */
+      border: 3px outset #fff;
+      box-shadow: 5px 5px 0px #000;
+      padding: 2px;
+    }
+    
+    .title-bar {
+      background: linear-gradient(90deg, #000080, #1084d0); /* Windows 95 title bar */
+      color: white;
+      padding: 3px 5px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .title-buttons {
+      display: flex;
+    }
+    
+    .title-button {
+      width: 16px;
+      height: 14px;
+      background-color: #c0c0c0;
+      border: 2px outset #fff;
+      margin-left: 2px;
+      text-align: center;
+      line-height: 14px;
+      font-size: 12px;
+    }
+    
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      background-color: #c0c0c0;
+      border: 2px inset #fff;
+      margin: 10px;
+      padding: 10px;
+    }
+    
+    .status-item {
+      font-weight: bold;
+    }
+    
+    .scene {
+      background-color: #fff;
+      border: 2px inset #fff;
+      margin: 10px;
+      padding: 15px;
+      min-height: 100px;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+    
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px;
+    }
+    
+    button {
+      background-color: #c0c0c0;
+      color: #000;
+      border: 2px outset #fff;
+      padding: 8px 15px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      text-align: left;
+      cursor: pointer;
+    }
+    
+    button:hover {
+      background-color: #d0d0d0;
+    }
+    
+    button:active {
+      border-style: inset;
+    }
+    
+    .footer {
+      font-size: 12px;
+      margin: 10px;
+      text-align: center;
+      color: #fff;
+    }
+    
+    /* Carmen Sandiego style detective image */
+    .detective {
+      float: right;
+      width: 120px;
+      height: 120px;
+      background-color: #000080;
+      border: 2px solid #fff;
+      margin-left: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+    
+    /* Pixelated images */
+    .pixel-art {
+      image-rendering: pixelated;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="title-bar">
+      <div>MEETING MARATHON v1.0</div>
+      <div class="title-buttons">
+        <div class="title-button">_</div>
+        <div class="title-button">□</div>
+        <div class="title-button">X</div>
+      </div>
+    </div>
+    
+    <div id="status" class="status-bar">
+      <div class="status-item">Day: 1</div>
+      <div class="status-item">Energy: 100</div>
+      <div class="status-item">Productivity: 0</div>
+      <div class="status-item">Reputation: 50</div>
+    </div>
+    
+    <div class="scene">
+      <div class="detective">
+        YOUR<br>CAREER<br>HERE
+      </div>
+      <p id="scene-text">It's Monday morning. Your calendar shows 5 meetings today. You have important work to finish. What do you do?</p>
+    </div>
+    
+    <div id="options" class="options">
+      <button data-index="0">A) Attend all meetings as scheduled</button>
+      <button data-index="1">B) Decline non-essential meetings</button>
+      <button data-index="2">C) Block focus time in your calendar</button>
+    </div>
+    
+    <div class="footer">© 1994 CORPORATE ADVENTURES INC • NOT A REAL COMPANY</div>
+  </div>
+
+  <script>
+    // Game state
+    let energy = 100;
+    let productivity = 0;
+    let reputation = 50;
+    let day = 1;
+    let currentScene = "start";
+    
+    // Funny quips for random display
+    const quips = [
+      "Did you remember to file your TPS reports?",
+      "The printer is jammed. Again.",
+      "Your coworker microwaved fish in the break room.",
+      "Your boss uses 'synergy' unironically.",
+      "Someone stole your stapler.",
+      "All meeting rooms are booked until 2027.",
+      "IT says they'll fix your problem 'soon'.",
+      "The coffee machine is making suspicious noises.",
+      "You just received 47 emails in the last minute.",
+      "Your computer decided to update right now."
+    ];
+    
+    // Get random quip
+    function getRandomQuip() {
+      return quips[Math.floor(Math.random() * quips.length)];
+    }
+    
+    // Game scenes with 90s corporate humor
+    const scenes = {
+      "start": {
+        text: "It's Monday morning. Your calendar shows 5 meetings today. You have important work to finish. What do you do?",
+        options: [
+          { text: "A) Attend all meetings as scheduled", next: "allMeetings" },
+          { text: "B) Decline non-essential meetings", next: "declineSome" },
+          { text: "C) Block focus time in your calendar", next: "blockTime" }
+        ]
+      },
+      "allMeetings": {
+        text: "You spend the entire day jumping between meetings. During the third meeting, an urgent issue arises. Your pager won't stop beeping! What do you do?",
+        options: [
+          { text: "A) Multitask: handle the issue while nodding vigorously", next: "multitask" },
+          { text: "B) Step out to find the nearest payphone", next: "stepOut" },
+          { text: "C) Delegate to that intern...what's their name again?", next: "delegate" }
+        ],
+        effect: () => { energy -= 20; productivity += 5; day += 1; }
+      },
+      "declineSome": {
+        text: "You declined 2 meetings that didn't require your input. Your manager sends a passive-aggressive memo asking why you weren't present.",
+        options: [
+          { text: "A) Explain priorities via company-wide email thread", next: "explainPriority" },
+          { text: "B) Apologize and promise to never prioritize actual work again", next: "apologize" },
+          { text: "C) Suggest a more efficient meeting structure (hilarious!)", next: "suggestChange" }
+        ],
+        effect: () => { energy -= 10; productivity += 15; reputation -= 10; day += 1; }
+      },
+      "blockTime": {
+        text: "You block 3 hours for focused work. Your colleagues schedule over it with 'urgent' meetings anyway. Your desktop calendar is a war zone.",
+        options: [
+          { text: "A) Attend the meetings while crying inside", next: "giveIn" },
+          { text: "B) Hold firm, unplug your phone, and hide", next: "holdFirm" },
+          { text: "C) Work from the supply closet where no one can find you", next: "hideAway" }
+        ],
+        effect: () => { energy -= 5; productivity += 10; day += 1; }
+      },
+      "multitask": {
+        text: "You try to solve the crisis while appearing engaged in meetings. You mix up your responses and accidentally agree to lead the company picnic committee.",
+        options: [
+          { text: "A) Work late to fix mistakes and buy 200 hot dogs", next: "workLate" },
+          { text: "B) Ask for help from that person who owes you a favor", next: "askHelp" },
+          { text: "C) Fake a system crash and blame technology", next: "fakeError" }
+        ],
+        effect: () => { energy -= 25; productivity -= 10; reputation -= 15; day += 1; }
+      },
+      "stepOut": {
+        text: "You step out to handle the crisis. You resolve it successfully, but missed an important decision in the meeting. Something about casual Fridays being canceled?",
+        options: [
+          { text: "A) Ask a colleague for notes (they wrote 'blah blah blah')", next: "askNotes" },
+          { text: "B) Schedule time with the decision-maker (in 6 weeks)", next: "catchUp" },
+          { text: "C) Move forward in ignorant bliss", next: "moveOn" }
+        ],
+        effect: () => { energy -= 15; productivity += 20; reputation += 5; day += 1; }
+      },
+      "delegate": {
+        text: "You delegate the crisis to an intern. They accidentally format the CEO's hard drive while trying to help. Oops!",
+        options: [
+          { text: "A) Leave the meeting to fix this catastrophe", next: "leaveHelp" },
+          { text: "B) Pretend you've never met this intern before", next: "disavow" },
+          { text: "C) Trust that IT will save the day (they won't)", next: "trust" }
+        ],
+        effect: () => { energy -= 10; productivity += 5; reputation -= 5; day += 1; }
+      },
+      "workLate": {
+        text: "You stay until 9PM fixing everything and sorting hot dog buns. The next day, your calendar shows 7 new meeting invites and a picnic planning session.",
+        options: [
+          { text: "A) Accept defeat and all meetings", next: "moreAccept" },
+          { text: "B) Push back by scheduling conflicting meetings with yourself", next: "pushBack" },
+          { text: "C) Suggest one giant meeting to rule them all", next: "consolidate" }
+        ],
+        effect: () => { energy -= 30; productivity += 15; day += 1; }
+      },
+      "explainPriority": {
+        text: "Your manager reads your email and says, 'Let's have a meeting to discuss your feelings about meetings.' The irony is completely lost on them.",
+        options: [
+          { text: "A) Continue prioritizing work (you rebel, you)", next: "strategicWork" },
+          { text: "B) Create a system for evaluating meeting importance", next: "createSystem" },
+          { text: "C) Give up and accept your meeting-filled destiny", next: "compromise" }
+        ],
+        effect: () => { energy += 10; productivity += 20; reputation += 5; day += 1; }
+      },
+      "giveIn": {
+        text: "You attend all the meetings. Someone brings cookies to the third one, so not a total loss. Your crucial work remains untouched, possibly forever.",
+        options: [
+          { text: "A) Stay late (again) while muttering to yourself", next: "stayLate" },
+          { text: "B) Tell your manager why you're behind schedule", next: "explainToManager" },
+          { text: "C) Learn to type with your feet to increase output", next: "multitasking" }
+        ],
+        effect: () => { energy -= 20; productivity -= 5; reputation += 5; day += 1; }
+      },
+      "holdFirm": {
+        text: "You decline the meetings and finish your work! Several colleagues are annoyed they couldn't waste your time. Your desk is now covered in passive-aggressive Post-it notes.",
+        options: [
+          { text: "A) Send a company-wide fax about your accomplishments", next: "sendSummary" },
+          { text: "B) Schedule one-on-ones that you'll later cancel", next: "oneOnOnes" },
+          { text: "C) Install a moat around your desk", next: "moreFocus" }
+        ],
+        effect: () => { energy += 5; productivity += 25; reputation -= 15; day += 1; }
+      },
+      "fakeError": {
+        text: "You pretend your computer crashed. IT shows up unexpectedly and discovers you're still using Windows 3.1. They alert management about the security risk.",
+        options: [
+          { text: "A) Blame budget constraints", next: "blame" },
+          { text: "B) Claim you're 'vintage computing'", next: "vintage" },
+          { text: "C) Hide under your desk", next: "hide" }
+        ],
+        effect: () => { energy -= 15; productivity -= 10; reputation -= 20; day += 1; }
+      },
+      "disavow": {
+        text: "You pretend not to know the intern. Unfortunately, there's a photo of you both from the holiday party on your desk. Your manager raises an eyebrow.",
+        options: [
+          { text: "A) Claim the photo was doctored", next: "lie" },
+          { text: "B) Admit responsibility and help fix it", next: "admit" },
+          { text: "C) Insist that's your twin who also works here", next: "twin" }
+        ],
+        effect: () => { energy -= 5; productivity -= 5; reputation -= 25; day += 1; }
+      },
+      "endGame": {
+        text: "GAME OVER: After many days battling corporate America's meeting culture, you have emerged... somehow.",
+        options: [
+          { text: "NEW GAME: Ready to suffer again?", next: "start" }
+        ],
+        effect: () => { 
+          energy = 100;
+          productivity = 0;
+          reputation = 50;
+          day = 1;
+        }
+      }
+    };
+    
+    // Add placeholder endpoints for incomplete paths
+    for (const sceneKey in scenes) {
+      scenes[sceneKey].options.forEach(option => {
+        if (!scenes[option.next] && option.next !== "start") {
+          scenes[option.next] = {
+            text: "ERROR 404: PRODUCTIVITY NOT FOUND. This path is still being optimized by management. " + getRandomQuip(),
+            options: [
+              { text: "ABORT: Return to your cubicle", next: "endGame" }
+            ],
+            effect: () => { day += 1; }
+          };
+        }
+      });
+    }
+    
+    // Game engine
+    function makeChoice(index) {
+      const scene = scenes[currentScene];
+      const choice = scene.options[index];
+      
+      // Apply effects
+      if (scene.effect) {
+        scene.effect();
+      }
+      
+      // Move to next scene
+      currentScene = choice.next;
+      
+      // Check for game over conditions
+      if (energy <= 0) {
+        scenes.endGame.text = "SYSTEM CRASH: You have collapsed from exhaustion. IT has been notified but they're in a meeting. " + getRandomQuip();
+        currentScene = "endGame";
+      } else if (day > 5) {
+        scenes.endGame.text = "CONGRATULATIONS: You survived a week of corporate meetings! Your reward is... more meetings next week. " + getRandomQuip();
+        currentScene = "endGame";
+      } else if (productivity >= 100) {
+        scenes.endGame.text = "UNEXPECTED ERROR: You were too productive and made everyone else look bad. Management is 'restructuring your role.' " + getRandomQuip();
+        currentScene = "endGame";
+      } else if (reputation <= 0) {
+        scenes.endGame.text = "SOCIAL ERROR: Your reputation hit rock bottom. You are now assigned to manage the office fax machine. " + getRandomQuip();
+        currentScene = "endGame";
+      }
+      
+      updateDisplay();
+    }
+    
+    function updateDisplay() {
+      const scene = scenes[currentScene];
+      
+      // Update status
+      document.getElementById("status").innerHTML = `
+        <div class="status-item">Day: ${day}</div>
+        <div class="status-item">Energy: ${energy}</div>
+        <div class="status-item">Productivity: ${productivity}</div>
+        <div class="status-item">Reputation: ${reputation}</div>
+      `;
+      
+      // Add random quip to end game scenarios
+      let displayText = scene.text;
+      if (currentScene === "endGame") {
+        // Custom endgame text is already set when we transition to endgame
+        displayText = scene.text;
+      }
+      
+      document.getElementById("scene-text").textContent = displayText;
+      
+      // Update options
+      const optionsEl = document.getElementById("options");
+      optionsEl.innerHTML = "";
+      
+      scene.options.forEach((option, index) => {
+        const button = document.createElement("button");
+        button.textContent = option.text;
+        button.setAttribute("data-index", index);
+        optionsEl.appendChild(button);
+      });
+    }
+    
+    // Enable click on options
+    document.getElementById("options").addEventListener("click", function(e) {
+      if (e.target && e.target.nodeName === "BUTTON") {
+        const choiceIndex = e.target.getAttribute("data-index");
+        makeChoice(choiceIndex);
+      }
+    });
+    
+    // Add random system sounds
+    function playRandomSound() {
+      const sounds = ["beep", "click", "error"];
+      const sound = sounds[Math.floor(Math.random() * sounds.length)];
+      console.log("90s computer " + sound + " sound played");
+    }
+    
+    // Mock system sounds when clicking buttons
+    document.addEventListener("click", function() {
+      if (Math.random() > 0.7) {
+        playRandomSound();
+      }
+    });
+  </script>
+</body>
+</html>
